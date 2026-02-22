@@ -1,6 +1,3 @@
-provider "aws" {
-  region = "eu-west-1"
-}
 # Create a VPC
 # Private subnet for worker nodes
 # Public subnets for load balancers
