@@ -1,4 +1,15 @@
-*.tfstate
-*.tfstate
+# Terraform
 .terraform/
-*.tfstate.*
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.*
+*.tfvars
+
+# Mac
+.DS_Store
+
+# Python
+__pycache__/
+
+# kube
+kubeconfig

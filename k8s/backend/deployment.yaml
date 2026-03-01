@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: observability
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: python:3.11-slim
+          command: ["sh", "-c"]
+          args:
+            - |
+              pip install flask prometheus_client opentelemetry-sdk opentelemetry-exporter-otlp &&
+              python /app/backend.py
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: backend-code
+              mountPath: /app
+      volumes:
+        - name: backend-code
+          configMap:
+            name: backend-code

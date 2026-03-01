@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: observability
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: python:3.11-slim
+          command: ["sh", "-c"]
+          args:
+            - |
+              pip install flask requests opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation-requests &&
+              python /app/frontend.py
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: frontend-code
+              mountPath: /app
+      volumes:
+        - name: frontend-code
+          configMap:
+            name: frontend-code
