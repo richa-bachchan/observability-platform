@@ -1,44 +1,57 @@
-## Architecture
+## Architecture (Layered View)
 
 ```mermaid
 flowchart TB
 
-  subgraph Applications
-    FE[Frontend Service]
-    BE[Backend Service]
-  end
+%% Application Layer
+subgraph Application Layer
+  FE[Frontend Service]
+  BE[Backend Service]
+end
 
-  subgraph Observability
-    OTEL[OpenTelemetry Collector]
-    PROM[Prometheus]
-    LOKI[Loki]
-    TEMPO[Tempo]
-    GRAF[Grafana]
-  end
+%% Telemetry Layer
+subgraph Telemetry Pipeline
+  OTEL[OpenTelemetry Collector]
+end
 
-  subgraph AWS_Infrastructure
-    EKS[EKS Cluster]
-    S3[S3 - Terraform State]
-    DDB[DynamoDB - State Lock]
-  end
+%% Observability Layer
+subgraph Observability Stack
+  PROM[Prometheus - Metrics]
+  LOKI[Loki - Logs]
+  TEMPO[Tempo - Traces]
+  GRAF[Grafana - Visualization]
+end
 
-  FE -->|HTTP| BE
-  FE -->|Traces| OTEL
-  BE -->|Traces| OTEL
-  BE -->|Metrics| PROM
-  BE -->|Logs| LOKI
+%% Infrastructure Layer
+subgraph Infrastructure
+  EKS[EKS Cluster]
+  S3[S3 - Terraform State]
+  DDB[DynamoDB - State Lock]
+end
 
-  OTEL -->|Traces| TEMPO
-  PROM --> GRAF
-  LOKI --> GRAF
-  TEMPO --> GRAF
+%% Application Flow
+FE --> BE
 
-  EKS --> FE
-  EKS --> BE
-  EKS --> OTEL
-  EKS --> PROM
-  EKS --> LOKI
-  EKS --> TEMPO
+%% Telemetry Flow
+FE -->|Traces| OTEL
+BE -->|Traces| OTEL
+BE -->|Metrics| PROM
+BE -->|Logs| LOKI
 
-  S3 --> EKS
-  DDB --> EKS
+OTEL -->|Traces| TEMPO
+
+%% Visualization
+PROM --> GRAF
+LOKI --> GRAF
+TEMPO --> GRAF
+
+%% Infrastructure Hosting
+EKS --> FE
+EKS --> BE
+EKS --> OTEL
+EKS --> PROM
+EKS --> LOKI
+EKS --> TEMPO
+
+S3 --> EKS
+DDB --> EKS
