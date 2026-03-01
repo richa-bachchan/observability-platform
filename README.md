@@ -18,8 +18,8 @@ flowchart TB
 
   subgraph AWS_Infrastructure
     EKS[EKS Cluster]
-    S3[S3 (Terraform State)]
-    DDB[DynamoDB (State Lock)]
+    S3[S3 - Terraform State]
+    DDB[DynamoDB - State Lock]
   end
 
   FE -->|HTTP| BE
