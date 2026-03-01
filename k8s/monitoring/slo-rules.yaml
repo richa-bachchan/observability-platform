@@ -1,0 +1,45 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: backend-slo-rules
+  namespace: observability
+  labels:
+    release: prometheus
+spec:
+  groups:
+  - name: backend-slo
+    rules:
+
+    # Error rate (5 minute window)
+    - record: backend:error_rate_5m
+      expr: |
+        sum(rate(backend_errors_total[5m]))
+        /
+        sum(rate(backend_requests_total[5m]))
+
+    # Error rate (1 hour window)
+    - record: backend:error_rate_1h
+      expr: |
+        sum(rate(backend_errors_total[1h]))
+        /
+        sum(rate(backend_requests_total[1h]))
+    
+    # FAST BURN ALERT (5m window)
+    - alert: BackendHighErrorRateFast
+      expr: backend:error_rate_5m > 0.02
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "High error rate (fast burn)"
+        description: "Backend is consuming error budget rapidly."
+
+    # SLOW BURN ALERT (1h window)
+    - alert: BackendHighErrorRateSlow
+      expr: backend:error_rate_1h > 0.01
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate (slow burn)"
+        description: "Backend error rate above SLO threshold."
